@@ -29,6 +29,7 @@ jobs:
           discovery.type: single-node
         ports: 
           - 9200:9200
+        options: --name elasticsearch
       minio:
         image: minio/minio
         ports: 
