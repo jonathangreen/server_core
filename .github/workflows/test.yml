@@ -65,4 +65,6 @@ jobs:
         python -m textblob.download_corpora
 
     - name: Run tests
-      run: ./test
+      run: |
+        source env/bin/activate
+        ./test
