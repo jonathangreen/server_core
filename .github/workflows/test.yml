@@ -60,5 +60,9 @@ jobs:
         pip install -r requirements.txt
         python -m textblob.download_corpora
         
+    - run: |
+        pwd
+        ls -lah
+        
     - name: Run tests
       run: ./test
