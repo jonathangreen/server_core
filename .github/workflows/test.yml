@@ -1,0 +1,62 @@
+name: Test Core
+
+on: [push, pull_request, workflow_dispatch]
+env:
+  SIMPLIFIED_TEST_DATABASE: postgres://simplified_test:test@localhost:5432/simplified_core_test
+  SIMPLIFIED_TEST_ELASTICSEARCH: http://localhost:9200
+  SIMPLIFIED_MINIO_HOST: localhost:9000
+  SIMPLIFIED_TEST_MINIO_ENDPOINT_URL: http://${SIMPLIFIED_MINIO_HOST}
+  SIMPLIFIED_TEST_MINIO_USER: minioadmin
+  SIMPLIFIED_TEST_MINIO_PASSWORD: minioadmin
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:9.6
+        env:
+          POSTGRES_USER: simplified_test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: simplified_core_test 
+        ports: 
+          - 5432:5432
+      elasticsearch:
+        image: elasticsearch:6.4.0
+        env:
+          discovery.type: single-node
+        ports: 
+          - 9200:9200
+      minio:
+        image: minio/minio
+        ports: 
+          - 9000:9000
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Configure Elasticsearch
+      run: |
+        docker exec elasticsearch elasticsearch-plugin install analysis-icu
+        docker restart elasticsearch
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 2.7
+        
+    - name: Install Packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-9.6
+
+    - name: Install 
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        python -m textblob.download_corpora
+        
+    - name: Run tests
+      run: ./test
