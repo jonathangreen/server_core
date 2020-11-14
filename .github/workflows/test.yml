@@ -46,7 +46,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 2.7
+        python-version: 2.7.17
         
     - name: Install Packages
       run: |
